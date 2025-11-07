@@ -1,27 +1,30 @@
 using System;
+using BetterCoroutine;
+using BetterCoroutine.AwaitRuntime;
 using Cysharp.Threading.Tasks;
+using UnityEngine;
 using Vault.BetterCoroutine;
 
 namespace DBH.Input.api.Extending {
     public abstract class ButtonInputSystem : AbstractInputSystem, IButtonInputSystem {
-        private IAsyncRuntime buttonReleasedDelay;
-        private IAsyncRuntime buttonPressedDelay;
+        private IAwaitRuntime buttonReleasedDelay;
+        private IAwaitRuntime buttonPressedDelay;
 
         public void KeyReleased() {
             if (!Enabled) return;
             if (buttonReleasedDelay.IsNotRunning()) {
-                buttonReleasedDelay = AsyncRuntime.Create(ButtonDelay(OnKeyReleased));
+                buttonReleasedDelay = IAwaitRuntime.WaitForSeconds(OnKeyReleased, .2f);
             } else {
-                buttonReleasedDelay.AndAfterFinishDo(() => buttonReleasedDelay = AsyncRuntime.Create(ButtonDelay(OnKeyReleased)));
+                buttonReleasedDelay.AndAfterFinishDo(() => buttonReleasedDelay = IAwaitRuntime.WaitForSeconds(OnKeyReleased, .2f));
             }
         }
 
         public void KeyPressed() {
             if (!Enabled) return;
             if (buttonPressedDelay.IsNotRunning()) {
-                buttonPressedDelay = AsyncRuntime.Create(ButtonDelay(OnKeyPressed));
+                buttonPressedDelay = IAwaitRuntime.WaitForSeconds(OnKeyPressed, .2f);
             } else {
-                buttonPressedDelay.AndAfterFinishDo(() => buttonPressedDelay = AsyncRuntime.Create(ButtonDelay(OnKeyPressed)));
+                buttonPressedDelay.AndAfterFinishDo(() => buttonPressedDelay = IAwaitRuntime.WaitForSeconds(OnKeyPressed, .2f));
             }
         }
 
@@ -29,12 +32,7 @@ namespace DBH.Input.api.Extending {
         public abstract void OnKeyReleased();
 
         public virtual void OnKeyPressed() {
-            
         }
 
-        private async UniTask ButtonDelay(Action onConfirm) {
-            onConfirm?.Invoke();
-            await UniTask.Delay(TimeSpan.FromSeconds(.2f), DelayType.Realtime);
-        }
     }
 }
