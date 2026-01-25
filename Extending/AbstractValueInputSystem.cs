@@ -5,8 +5,10 @@ using UnityEngine.InputSystem;
 namespace DBH.Input.api.Extending {
     public abstract class AbstractValueInputSystem<T> where T : struct {
         public delegate void ButtonPressed(T value);
+        public delegate void ButtonCancel();
 
         public event ButtonPressed OnButtonPressed;
+        public event ButtonCancel OnButtonCanceled;
         private readonly InputAction inputAction;
 
         protected abstract string Path { get; }
@@ -17,12 +19,16 @@ namespace DBH.Input.api.Extending {
                 Debug.LogError("missing Input Action For:" + Path);
             } else {
                 inputAction.performed += OnButtonPerformed;
+                inputAction.canceled += OnButtonPerformed;
             }
         }
 
         private void OnButtonPerformed(InputAction.CallbackContext obj) {
             var readValue = obj.ReadValue<T>();
             OnButtonPressed?.Invoke(readValue);
+        }
+        private void OnButtonCancel() {
+            OnButtonCanceled?.Invoke();
         }
 
         public void Enable() {
