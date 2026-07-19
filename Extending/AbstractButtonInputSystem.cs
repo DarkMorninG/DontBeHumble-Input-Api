@@ -2,7 +2,7 @@
 using UnityEngine.InputSystem;
 
 namespace DBH.Input.api.Extending {
-    public abstract class AbstractButtonInputSystem {
+    public abstract class AbstractButtonInputSystem : IIDisposableInputSystem{
         public delegate void ButtonInput();
 
         public event ButtonInput OnButtonPerformed;
