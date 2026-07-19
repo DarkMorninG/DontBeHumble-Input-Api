@@ -23,6 +23,13 @@ namespace DBH.Input.api.Extending {
             }
         }
 
+        public void Deconstruct() {
+            if (inputAction == null) return;
+            inputAction.performed -= ButtonPerformed;
+            inputAction.started -= ButtonStarted;
+            inputAction.canceled -= ButtonCanceled;
+        }
+
         private void ButtonPerformed(InputAction.CallbackContext obj) {
             OnButtonPerformed?.Invoke();
         }
