@@ -19,15 +19,20 @@ namespace DBH.Input.api.Extending {
                 Debug.LogError("missing Input Action For:" + Path);
             } else {
                 inputAction.performed += OnButtonPerformed;
-                inputAction.canceled += OnButtonPerformed;
+                inputAction.canceled += OnButtonCancel;
             }
+        }
+        public void Deconstruct() {
+            if (inputAction == null) return;
+            inputAction.performed -= OnButtonPerformed;
+            inputAction.canceled -= OnButtonCancel;
         }
 
         private void OnButtonPerformed(InputAction.CallbackContext obj) {
             var readValue = obj.ReadValue<T>();
             OnButtonPressed?.Invoke(readValue);
         }
-        private void OnButtonCancel() {
+        private void OnButtonCancel(InputAction.CallbackContext obj) {
             OnButtonCanceled?.Invoke();
         }
 
