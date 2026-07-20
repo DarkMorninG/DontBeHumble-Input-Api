@@ -6,10 +6,9 @@ namespace DBH.Input.api.Extending {
     public abstract class AbstractValueInputSystem<T> : IIDisposableInputSystem where T : struct {
         public delegate void ButtonPressed(T value);
 
-        public delegate void ButtonCancel();
-
-        public event ButtonPressed OnButtonPressed;
-        public event ButtonCancel OnButtonCanceled;
+        public event ButtonPressed OnButtonPerformed;
+        public event ButtonPressed OnButtonStarted;
+        public event ButtonPressed OnButtonCanceled;
         private readonly InputAction inputAction;
 
         protected abstract string Path { get; }
@@ -19,24 +18,32 @@ namespace DBH.Input.api.Extending {
             if (inputAction == null) {
                 Debug.LogError("missing Input Action For:" + Path);
             } else {
-                inputAction.performed += OnButtonPerformed;
-                inputAction.canceled += OnButtonCancel;
+                inputAction.started += ButtonStarted;
+                inputAction.performed += ButtonPerformed;
+                inputAction.canceled += ButtonCancel;
             }
         }
 
         public void Deconstruct() {
             if (inputAction == null) return;
-            inputAction.performed -= OnButtonPerformed;
-            inputAction.canceled -= OnButtonCancel;
+            inputAction.performed -= ButtonPerformed;
+            inputAction.canceled -= ButtonCancel;
+            inputAction.started -= ButtonStarted;
         }
 
-        private void OnButtonPerformed(InputAction.CallbackContext obj) {
+        private void ButtonPerformed(InputAction.CallbackContext obj) {
             var readValue = obj.ReadValue<T>();
-            OnButtonPressed?.Invoke(readValue);
+            OnButtonPerformed?.Invoke(readValue);
         }
 
-        private void OnButtonCancel(InputAction.CallbackContext obj) {
-            OnButtonCanceled?.Invoke();
+        private void ButtonStarted(InputAction.CallbackContext obj) {
+            var readValue = obj.ReadValue<T>();
+            OnButtonStarted?.Invoke(readValue);
+        }
+
+        private void ButtonCancel(InputAction.CallbackContext obj) {
+            var readValue = obj.ReadValue<T>();
+            OnButtonCanceled?.Invoke(readValue);
         }
 
         public void Enable() {
